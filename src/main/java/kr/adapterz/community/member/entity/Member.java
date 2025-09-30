@@ -11,6 +11,7 @@ import lombok.Getter;
 @Entity
 @Getter
 public class Member extends BaseTimeEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -19,7 +20,7 @@ public class Member extends BaseTimeEntity {
     @Column(name = "email", nullable = false, length = 50)
     private String email;
 
-    @Column(name = "password", nullable = false, length = 20)
+    @Column(name = "password", nullable = false)
     private String password;
 
     @Column(name = "nickname", nullable = false)
@@ -28,5 +29,40 @@ public class Member extends BaseTimeEntity {
     @Column(name = "profile_image_url", nullable = false)
     private String profile_image_url;
 
+    @Column(name = "role", nullable = false)
+    private String role;
 
+    protected Member () {
+
+    }
+
+    private Member(
+            String email,
+            String password,
+            String nickname,
+            String profile_image_url,
+            String role
+    ) {
+        this.email = email;
+        this.password = password;
+        this.nickname = nickname;
+        this.profile_image_url = profile_image_url;
+        this.role = role;
+    }
+
+    public static Member createMember(
+            String email,
+            String password,
+            String nickname,
+            String profile_image_url,
+            String role
+    ) {
+        return new Member(
+                email,
+                password,
+                nickname,
+                profile_image_url,
+                role
+        );
+    }
 }
