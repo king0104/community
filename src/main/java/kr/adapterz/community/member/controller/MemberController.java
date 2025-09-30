@@ -17,7 +17,6 @@ public class MemberController {
 
     @PostMapping("/join")
     public String join(@RequestBody JoinRequest joinRequest) {
-        System.out.println(joinRequest.getEmail());
         memberService.join(joinRequest);
 
         return "ok";
