@@ -72,4 +72,9 @@ public class JWTUtil {
                 .signWith(secretKey)
                 .compact();
     }
+
+    public String getCategory(String token) {
+
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("category", String.class);
+    }
 }
