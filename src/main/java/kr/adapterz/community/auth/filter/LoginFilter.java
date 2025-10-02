@@ -28,6 +28,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.StreamUtils;
@@ -49,8 +50,11 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 
     private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
 
-    public LoginFilter(AuthenticationManager authenticationManager) {
+    private final AuthenticationSuccessHandler authenticationSuccessHandler;
+
+    public LoginFilter(AuthenticationManager authenticationManager, AuthenticationSuccessHandler authenticationSuccessHandler) {
         super(DEFAULT_ANT_PATH_REQUEST_MATCHER, authenticationManager);
+        this.authenticationSuccessHandler = authenticationSuccessHandler;
     }
 
     @Override
@@ -88,29 +92,12 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
     }
 
-    //로그인 성공시 실행하는 메소드 (여기서 JWT를 발급하면 됨)
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
-
-        //유저 정보
-        String username = authentication.getName();
-
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-        GrantedAuthority auth = iterator.next();
-        String role = auth.getAuthority();
-
-        //토큰 생성
-        String access = jwtUtil.createJwt("access", username, role, 600000L);
-        String refresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
-
-        addRefreshEntity(username, refresh, 86400000L);
-
-        //응답 설정
-        response.setHeader("access", access);
-        response.addCookie(createCookie("refresh", refresh));
-        response.setStatus(HttpStatus.OK.value());
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
+                                            Authentication authResult) throws IOException, ServletException {
+        authenticationSuccessHandler.onAuthenticationSuccess(request, response, authResult);
     }
+
 
     //로그인 실패시 실행하는 메소드
     @Override
@@ -131,16 +118,5 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         return cookie;
     }
 
-    private void addRefreshEntity(String username, String refresh, Long expiredMs) {
-        Date date = new Date(System.currentTimeMillis() + expiredMs);
-
-        RefreshEntity refreshEntity = RefreshEntity.createRefreshEntity(
-                username,
-                refresh,
-                date.toString()
-        );
-
-        refreshRepository.save(refreshEntity);
-    }
 }
 

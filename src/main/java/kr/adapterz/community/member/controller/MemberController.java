@@ -21,4 +21,6 @@ public class MemberController {
 
         return "ok";
     }
+
+
 }
