@@ -3,8 +3,11 @@ package kr.adapterz.community.member.service;
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import kr.adapterz.community.auth.RoleType;
 import kr.adapterz.community.auth.SocialProviderType;
+import kr.adapterz.community.auth.dto.CustomOAuth2User;
+import kr.adapterz.community.auth.jwt.service.JwtService;
 import kr.adapterz.community.member.dto.JoinRequest;
 import kr.adapterz.community.member.dto.MemberPatchRequest;
 import kr.adapterz.community.member.dto.MemberPatchResponse;
@@ -14,6 +17,7 @@ import kr.adapterz.community.member.repository.MemberRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -32,10 +36,12 @@ public class MemberService extends DefaultOAuth2UserService implements UserDetai
 
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final JwtService jwtService;
 
-    public MemberService(MemberRepository memberRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public MemberService(MemberRepository memberRepository, BCryptPasswordEncoder bCryptPasswordEncoder, JwtService jwtService) {
         this.memberRepository = memberRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.jwtService = jwtService;
     }
 
     @Transactional
@@ -92,8 +98,7 @@ public class MemberService extends DefaultOAuth2UserService implements UserDetai
                 member.getEmail(),
                 member.getPassword(),
                 member.getNickname(),
-                member.getProfile_image_url(),
-                member.getRole()
+                member.getProfile_image_url()
         );
     }
 
@@ -111,6 +116,7 @@ public class MemberService extends DefaultOAuth2UserService implements UserDetai
         String role = RoleType.MEMBER.name();
         String email;
         String nickname;
+        SocialProviderType socialProviderType;
 
         // provider 제공자별 데이터 획득
         String registrationId = userRequest.getClientRegistration().getRegistrationId().toUpperCase();
@@ -120,6 +126,7 @@ public class MemberService extends DefaultOAuth2UserService implements UserDetai
             username = registrationId + "_" + attributes.get("id");
             email = attributes.get("email").toString();
             nickname = attributes.get("nickname").toString();
+            socialProviderType = SocialProviderType.NAVER;
 
         } else if (registrationId.equals(SocialProviderType.GOOGLE.name())) {
 
@@ -127,42 +134,52 @@ public class MemberService extends DefaultOAuth2UserService implements UserDetai
             username = registrationId + "_" + attributes.get("sub");
             email = attributes.get("email").toString();
             nickname = attributes.get("name").toString();
+            socialProviderType = SocialProviderType.GOOGLE;
 
         } else {
             throw new OAuth2AuthenticationException("지원하지 않는 소셜 로그인입니다.");
         }
 
         // 데이터베이스 조회 -> 존재하면 업데이트, 없으면 신규 가입
-        Optional<UserEntity> entity = memberRepository.findByEmailAndIsSocial(username, true);
-        if (entity.isPresent()) {
-            // role 조회
-            role = entity.get().getRoleType().name();
-
-            // 기존 유저 업데이트
-            UserRequestDTO dto = new UserRequestDTO();
-            dto.setNickname(nickname);
-            dto.setEmail(email);
-            entity.get().updateUser(dto);
-
-            memberRepository.save(entity.get());
-        } else {
+        Optional<Member> member = memberRepository.findByEmailAndIsSocial(email, true);
+        if (member.isEmpty()) {
             // 신규 유저 추가
-            UserEntity newUserEntity = UserEntity.builder()
-                    .username(username)
-                    .password("")
-                    .isLock(false)
-                    .isSocial(true)
-                    .socialProviderType(SocialProviderType.valueOf(registrationId))
-                    .roleType(UserRoleType.USER)
-                    .nickname(nickname)
-                    .email(email)
-                    .build();
+            Member newMember = Member.createSocialMember(
+                    email,
+                    nickname,
+                    socialProviderType,
+                    ""
+            );
 
-            memberRepository.save(newUserEntity);
+            memberRepository.save(newMember);
         }
 
         authorities = List.of(new SimpleGrantedAuthority(role));
 
         return new CustomOAuth2User(attributes, authorities, username);
     }
+
+    // 자체/소셜 로그인 회원 탈퇴
+    @Transactional
+    public void deleteUser(UserRequestDTO dto) throws AccessDeniedException {
+
+        // 본인 및 어드민만 삭제 가능 검증
+        SecurityContext context = SecurityContextHolder.getContext();
+        String sessionUsername = context.getAuthentication().getName();
+        String sessionRole = context.getAuthentication().getAuthorities().iterator().next().getAuthority();
+
+        boolean isOwner = sessionUsername.equals(dto.getUsername());
+        boolean isAdmin = sessionRole.equals("ROLE_"+UserRoleType.ADMIN.name());
+
+        if (!isOwner && !isAdmin) {
+            throw new AccessDeniedException("본인 혹은 관리자만 삭제할 수 있습니다.");
+        }
+
+        // 유저 제거
+        userRepository.deleteByUsername(dto.getUsername());
+
+        // Refresh 토큰 제거
+        jwtService.removeRefreshUser(dto.getUsername());
+    }
+
 }

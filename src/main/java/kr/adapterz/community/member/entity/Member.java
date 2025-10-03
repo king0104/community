@@ -52,9 +52,6 @@ public class Member extends BaseTimeEntity {
     @Column(name = "profile_image_url", nullable = false)
     private String profile_image_url;
 
-    @Column(name = "role", nullable = false)
-    private String role;
-
     protected Member() {
 
     }
@@ -63,29 +60,55 @@ public class Member extends BaseTimeEntity {
             String email,
             String password,
             String nickname,
-            String profile_image_url,
-            String role
+            String profile_image_url
     ) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.profile_image_url = profile_image_url;
-        this.role = role;
+    }
+
+    private Member(String email, String password, Boolean isLock, Boolean isSocial,
+                  SocialProviderType socialProviderType, RoleType roleType, String nickname, String profile_image_url) {
+        this.email = email;
+        this.password = password;
+        this.isLock = isLock;
+        this.isSocial = isSocial;
+        this.socialProviderType = socialProviderType;
+        this.roleType = roleType;
+        this.nickname = nickname;
+        this.profile_image_url = profile_image_url;
     }
 
     public static Member createMember(
             String email,
             String password,
             String nickname,
-            String profile_image_url,
-            String role
+            String profile_image_url
     ) {
         return new Member(
                 email,
                 password,
                 nickname,
-                profile_image_url,
-                role
+                profile_image_url
+        );
+    }
+
+    public static Member createSocialMember(
+            String email,
+            String nickname,
+            SocialProviderType socialProviderType,
+            String profile_image_url
+    ) {
+        return new Member(
+                email,
+                "",
+                false,
+                true,
+                socialProviderType,
+                RoleType.MEMBER,
+                nickname,
+                profile_image_url
         );
     }
 

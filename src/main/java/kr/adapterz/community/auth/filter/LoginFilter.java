@@ -9,46 +9,28 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpMethod;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.Map;
-import kr.adapterz.community.auth.jwt.JWTUtil;
-import kr.adapterz.community.auth.refresh.entity.RefreshEntity;
-import kr.adapterz.community.auth.refresh.repository.RefreshRepository;
-import kr.adapterz.community.auth.service.CustomUserDetails;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.StreamUtils;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
 public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 
-    public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "username";
-
-    public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "password";
+    public static final String EMAIL_KEY = "email";        // ★ email을 username 파라미터로 사용
+    public static final String PASSWORD_KEY = "password";
 
     private static final RequestMatcher DEFAULT_ANT_PATH_REQUEST_MATCHER = PathPatternRequestMatcher.withDefaults()
             .matcher(HttpMethod.POST, "/login");
-
-    private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
-
-    private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
 
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
 
@@ -77,12 +59,12 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
             throw new RuntimeException(e);
         }
 
-        String username = loginMap.get(usernameParameter);
-        username = (username != null) ? username.trim() : "";
-        String password = loginMap.get(passwordParameter);
+        String email = loginMap.get(EMAIL_KEY);
+        email = (email != null) ? email.trim() : "";
+        String password = loginMap.get(PASSWORD_KEY);
         password = (password != null) ? password : "";
 
-        UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(username,
+        UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(email,
                 password);
         setDetails(request, authRequest);
         return this.getAuthenticationManager().authenticate(authRequest);
