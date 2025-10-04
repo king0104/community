@@ -30,7 +30,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final RefreshRepository refreshRepository;
 
     public LoginFilter(AuthenticationManager authenticationManager, ObjectMapper objectMapper, JWTUtil jwtUtil, RefreshRepository refreshRepository) {
-
         this.authenticationManager = authenticationManager;
         this.objectMapper = objectMapper;
         this.jwtUtil = jwtUtil;
