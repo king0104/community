@@ -19,7 +19,6 @@ public class CustomLogoutFilter extends GenericFilterBean {
     private final RefreshRepository refreshRepository;
 
     public CustomLogoutFilter(JWTUtil jwtUtil, RefreshRepository refreshRepository) {
-
         this.jwtUtil = jwtUtil;
         this.refreshRepository = refreshRepository;
     }
