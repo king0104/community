@@ -1,10 +1,12 @@
 package kr.adapterz.community.domain.member.service;
 
+import kr.adapterz.community.auth.refresh.repository.RefreshRepository;
 import kr.adapterz.community.domain.member.dto.JoinRequest;
 import kr.adapterz.community.domain.member.dto.MemberPatchRequest;
 import kr.adapterz.community.domain.member.dto.MemberPatchResponse;
 import kr.adapterz.community.domain.member.entity.Member;
 import kr.adapterz.community.domain.member.repository.MemberRepository;
+import kr.adapterz.community.global.exception.BadRequestException;
 import kr.adapterz.community.global.exception.ErrorCode;
 import kr.adapterz.community.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final RefreshRepository refreshRepository;
 
     public void join(JoinRequest joinRequest) {
         String email = joinRequest.getEmail();
@@ -59,6 +62,19 @@ public class MemberService {
         member.updateProfile(request.getNickname(), request.getProfileImgUrl());
 
         return MemberPatchResponse.from(member);
+    }
+
+    @Transactional
+    public void deleteMember(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.MEMBER_NOT_FOUND));
+
+        if (member.isWithdrawn()) {
+            throw new BadRequestException(ErrorCode.MEMBER_ALREADY_WITHDRAWN);
+        }
+
+        member.withdraw();
+        refreshRepository.deleteByUsername(email);
     }
 
 }
