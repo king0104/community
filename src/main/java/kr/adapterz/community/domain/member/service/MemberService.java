@@ -3,6 +3,8 @@ package kr.adapterz.community.domain.member.service;
 import kr.adapterz.community.domain.member.dto.JoinRequest;
 import kr.adapterz.community.domain.member.entity.Member;
 import kr.adapterz.community.domain.member.repository.MemberRepository;
+import kr.adapterz.community.global.exception.ErrorCode;
+import kr.adapterz.community.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -39,6 +41,11 @@ public class MemberService {
 
         memberRepository.save(member);
 
+    }
+
+    public Member findByEmail(String email) {
+        return memberRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
 }
