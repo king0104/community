@@ -1,6 +1,6 @@
-package kr.adapterz.community.member.repository;
+package kr.adapterz.community.domain.member.repository;
 
-import kr.adapterz.community.member.entity.Member;
+import kr.adapterz.community.domain.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {

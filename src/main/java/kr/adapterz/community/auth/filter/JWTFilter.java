@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import kr.adapterz.community.auth.jwt.JWTUtil;
 import kr.adapterz.community.auth.service.CustomUserDetails;
-import kr.adapterz.community.member.entity.Member;
+import kr.adapterz.community.domain.member.entity.Member;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

@@ -1,7 +1,7 @@
 package kr.adapterz.community.auth.service;
 
-import kr.adapterz.community.member.entity.Member;
-import kr.adapterz.community.member.repository.MemberRepository;
+import kr.adapterz.community.domain.member.entity.Member;
+import kr.adapterz.community.domain.member.repository.MemberRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

@@ -2,8 +2,7 @@ package kr.adapterz.community.auth.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import kr.adapterz.community.member.entity.Member;
+import kr.adapterz.community.domain.member.entity.Member;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
