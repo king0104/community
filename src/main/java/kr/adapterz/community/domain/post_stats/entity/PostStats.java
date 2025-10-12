@@ -23,12 +23,15 @@ public class PostStats extends BaseEntity {
     private Post post;
 
     @Column(name = "view_count", nullable = false)
+    @Builder.Default
     private Long viewCount = 0L;
 
     @Column(name = "like_count", nullable = false)
+    @Builder.Default
     private Long likeCount = 0L;
 
     @Column(name = "comment_count", nullable = false)
+    @Builder.Default
     private Long commentCount = 0L;
 
 }
