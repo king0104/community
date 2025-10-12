@@ -1,8 +1,8 @@
-package kr.adapterz.community.member.service;
+package kr.adapterz.community.domain.member.service;
 
-import kr.adapterz.community.member.dto.JoinRequest;
-import kr.adapterz.community.member.entity.Member;
-import kr.adapterz.community.member.repository.MemberRepository;
+import kr.adapterz.community.domain.member.dto.JoinRequest;
+import kr.adapterz.community.domain.member.entity.Member;
+import kr.adapterz.community.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

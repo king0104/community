@@ -1,4 +1,4 @@
-package kr.adapterz.community.member.dto;
+package kr.adapterz.community.domain.member.dto;
 
 import lombok.Getter;
 

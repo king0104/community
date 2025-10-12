@@ -1,7 +1,7 @@
-package kr.adapterz.community.member.controller;
+package kr.adapterz.community.domain.member.controller;
 
-import kr.adapterz.community.member.dto.JoinRequest;
-import kr.adapterz.community.member.service.MemberService;
+import kr.adapterz.community.domain.member.dto.JoinRequest;
+import kr.adapterz.community.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
