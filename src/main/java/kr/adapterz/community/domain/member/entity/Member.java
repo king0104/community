@@ -58,4 +58,12 @@ public class Member extends BaseEntity {
         this.profileImgUrl = profileImgUrl;
     }
 
+    public void withdraw() {
+        this.delete();
+    }
+
+    public boolean isWithdrawn() {
+        return this.getIsDeleted();
+    }
+
 }

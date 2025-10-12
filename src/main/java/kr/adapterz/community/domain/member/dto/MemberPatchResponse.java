@@ -11,11 +11,11 @@ import lombok.Getter;
 @Builder(access = AccessLevel.PRIVATE)
 public class MemberPatchResponse {
 
-    private Integer id;
+    private Integer memberId;
 
     public static MemberPatchResponse from(Member member) {
         return MemberPatchResponse.builder()
-                .id(member.getId())
+                .memberId(member.getId())
                 .build();
     }
 }
