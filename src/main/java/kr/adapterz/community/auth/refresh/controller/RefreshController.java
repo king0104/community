@@ -22,14 +22,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/refresh")
+@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class RefreshController {
 
     private final RefreshService refreshService;
     private final CookieUtil cookieUtil;
 
-    @PostMapping("/reissue")
+    @PostMapping("/refresh")
     public ResponseEntity<Void> reissue(
             HttpServletRequest request,
             HttpServletResponse response
