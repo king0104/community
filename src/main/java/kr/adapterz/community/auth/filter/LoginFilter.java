@@ -88,7 +88,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     }
 
 
-
     private Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);

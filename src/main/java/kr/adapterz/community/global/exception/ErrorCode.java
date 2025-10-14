@@ -1,6 +1,7 @@
 package kr.adapterz.community.global.exception;
 
 import lombok.Getter;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties.Http;
 import org.springframework.http.HttpStatus;
 
 @Getter
@@ -9,7 +10,11 @@ public enum ErrorCode {
     // 400
     MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당하는 멤버를 찾을 수 없습니다"),
     MEMBER_ALREADY_WITHDRAWN(HttpStatus.BAD_REQUEST, "이미 탈퇴한 회원입니다"),
+    REFRESH_TOKEN_MISSED(HttpStatus.BAD_REQUEST, "해당 요청에 refresh token이 없습니다"),
+    REFRESH_TOKEN_INVALID(HttpStatus.BAD_REQUEST, "유효하지 않는 refresh token 입니다"),
+    REFRESH_TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "만료된 refresh token 입니다"),
     // 401
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다"),
 
     // 403
 
