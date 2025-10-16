@@ -12,19 +12,19 @@ public class MemberGetResponse {
     private Integer memberId;
     private String email;
     private String nickname;
-    private String profileImgUrl;
+    private Integer profileImageId;
 
     public static MemberGetResponse of(
             Integer memberId,
-            String password,
+            String email,
             String nickname,
-            String profileImgUrl
+            Integer profileImageId
     ) {
         return MemberGetResponse.builder()
                 .memberId(memberId)
-                .email(password)
+                .email(email)
                 .nickname(nickname)
-                .profileImgUrl(profileImgUrl)
+                .profileImageId(profileImageId)
                 .build();
     }
 }

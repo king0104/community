@@ -27,8 +27,8 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @PostMapping("/join")
-    public ResponseEntity<Void> join(@RequestBody JoinRequest joinRequest) {
+    @PostMapping
+    public ResponseEntity<Void> join(@Valid @RequestBody JoinRequest joinRequest) {
         memberService.join(joinRequest);
 
         return ResponseEntity
@@ -49,7 +49,7 @@ public class MemberController {
                         member.getId(),
                         member.getEmail(),
                         member.getNickname(),
-                        member.getProfileImgUrl()
+                        member.getImage().getId()
                 ));
     }
 
