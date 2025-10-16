@@ -27,7 +27,6 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    // TODO: 이메일, 닉네임 중복검사 진행하기 - service에서 controller로 역할 위임
     @PostMapping
     public ResponseEntity<Void> join(@Valid @RequestBody JoinRequest joinRequest) {
         memberService.join(joinRequest);

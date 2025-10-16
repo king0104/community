@@ -16,6 +16,8 @@ public enum ErrorCode {
     IMAGE_FILE_ONLY(HttpStatus.BAD_REQUEST, "이미지 파일만 업로드 가능합니다"),
     FILE_SIZE_EXCEED(HttpStatus.BAD_REQUEST, "파일은 최대 5MB까지 업로드 가능합니다"),
     UNSUPPORTED_FILE_FORMAT(HttpStatus.BAD_REQUEST, "지원하지 않는 파일 형식입니다"),
+    EMAIL_DUPLICATED(HttpStatus.BAD_REQUEST, "중복 이메일입니다"),
+    NICKNAME_DUPLICATED(HttpStatus.BAD_REQUEST, "중복 닉네임입니다"),
 
     // 401
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다"),

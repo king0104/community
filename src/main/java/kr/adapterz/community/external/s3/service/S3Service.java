@@ -61,11 +61,9 @@ public class S3Service {
      */
     public void deleteFile(String s3Key) {
         try {
-            // S3 키에서 버킷 URL 부분 제거
-            String key = s3Key.substring(s3Key.indexOf(".com/") + 5);
-
-            if (amazonS3.doesObjectExist(bucket, key)) {
-                amazonS3.deleteObject(bucket, key);
+            if (amazonS3.doesObjectExist(bucket, s3Key)) {
+                amazonS3.deleteObject(bucket, s3Key);
+                log.info("S3 파일 삭제 성공: key={}", s3Key);
             }
         } catch (Exception e) {
             // 삭제 실패해도 게시글 삭제 등 다른 로직은 그대로 진행

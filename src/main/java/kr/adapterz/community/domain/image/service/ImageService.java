@@ -18,9 +18,7 @@ public class ImageService {
     private final ImageRepository imageRepository;
     private final S3Service s3Service;
 
-    /**
-     * 이미지 업로드
-     */
+
     @Transactional
     public ImageUploadResponse uploadImage(MultipartFile file) {
         // S3에 업로드
@@ -43,26 +41,22 @@ public class ImageService {
         return ImageUploadResponse.of(savedImage);
     }
 
-    /**
-     * 이미지 조회
-     */
+
     public Image getImage(Integer imageId) {
         return imageRepository.findById(imageId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.IMAGE_NOT_FOUND));
     }
 
-    /**
-     * 이미지 삭제
-     */
+
     @Transactional
     public void deleteImage(Integer imageId) {
         Image image = getImage(imageId);
 
-        // S3에서 삭제
-        s3Service.deleteFile(image.getS3Url());
+        // 실제 삭제 대신 상태만 변경
+        image.delete();  // BaseEntity의 delete() 사용
 
-        // DB에서 삭제
-        imageRepository.delete(image);
+        // S3는 나중에 배치로 삭제 (또는 바로 삭제)
+        s3Service.deleteFile(image.getS3Key());
 
     }
 }

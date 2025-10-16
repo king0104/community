@@ -15,15 +15,12 @@ public class MemberJoinResponse {
     private String nickname;
     private String profileImageUrl;
 
-    // image까지 한 번에 로딩한 member 가져와야한다
-    // image 있으면 url 주기 / 없으면 null
-    public static MemberJoinResponse from(Member member
-    ) {
+    public static MemberJoinResponse from(Member member) {
         return MemberJoinResponse.builder()
                 .memberId(member.getId())
                 .email(member.getEmail())
                 .nickname(member.getNickname())
-                .profileImageUrl(member.getImage() != null ? member.getImage().getS3Url() : null)
+                .profileImageUrl(member.getImage().getS3Url())
                 .build();
     }
 }

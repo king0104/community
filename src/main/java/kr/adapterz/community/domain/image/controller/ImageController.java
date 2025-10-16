@@ -27,16 +27,20 @@ public class ImageController {
 
         ImageUploadResponse response = imageService.uploadImage(file);
 
-        return ResponseEntity.status(HttpStatus.CREATED)
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
                 .body(response);
     }
 
 
     @DeleteMapping("/{imageId}")
-    public ResponseEntity<Void> deleteImage(@PathVariable Integer imageId) {
+    public ResponseEntity<Void> deleteImage(
+            @PathVariable Integer imageId) {
 
         imageService.deleteImage(imageId);
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .build();
     }
 }

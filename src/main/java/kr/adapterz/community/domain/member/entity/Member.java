@@ -33,7 +33,7 @@ public class Member extends BaseEntity {
     private String nickname;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "image_id")
+    @JoinColumn(name = "image_id", nullable = false)
     private Image image;
 
     @Column
@@ -55,8 +55,11 @@ public class Member extends BaseEntity {
                 .build();
     }
 
-    public void updateProfile(String nickname, Image image) {
+    public void updateNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public void updateImage(Image image) {
         this.image = image;
     }
 
