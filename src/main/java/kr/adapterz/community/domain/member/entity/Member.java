@@ -3,6 +3,7 @@ package kr.adapterz.community.domain.member.entity;
 import jakarta.persistence.*;
 import kr.adapterz.community.common.BaseEntity;
 import kr.adapterz.community.domain.comment.entity.Comment;
+import kr.adapterz.community.domain.image.entity.Image;
 import kr.adapterz.community.domain.post.entity.Post;
 import kr.adapterz.community.domain.post_like.entity.PostLike;
 import lombok.*;
@@ -31,8 +32,9 @@ public class Member extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String nickname;
 
-    @Column(length = 512)
-    private String profileImgUrl;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "image_id")
+    private Image image;
 
     @Column
     private String role;
@@ -41,21 +43,21 @@ public class Member extends BaseEntity {
             String email,
             String password,
             String nickname,
-            String profileImgUrl,
+            Image image,
             String role
     ) {
         return Member.builder()
                 .email(email)
                 .password(password)
                 .nickname(nickname)
-                .profileImgUrl(profileImgUrl)
+                .image(image)
                 .role(role)
                 .build();
     }
 
-    public void updateProfile(String nickname, String profileImgUrl) {
+    public void updateProfile(String nickname, Image image) {
         this.nickname = nickname;
-        this.profileImgUrl = profileImgUrl;
+        this.image = image;
     }
 
     public void withdraw() {

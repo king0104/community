@@ -27,8 +27,9 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @PostMapping("/join")
-    public ResponseEntity<Void> join(@RequestBody JoinRequest joinRequest) {
+    // TODO: 이메일, 닉네임 중복검사 진행하기 - service에서 controller로 역할 위임
+    @PostMapping
+    public ResponseEntity<Void> join(@Valid @RequestBody JoinRequest joinRequest) {
         memberService.join(joinRequest);
 
         return ResponseEntity
@@ -49,7 +50,7 @@ public class MemberController {
                         member.getId(),
                         member.getEmail(),
                         member.getNickname(),
-                        member.getProfileImgUrl()
+                        member.getImage().getId()
                 ));
     }
 

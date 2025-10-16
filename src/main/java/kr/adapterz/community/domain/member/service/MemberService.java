@@ -1,7 +1,10 @@
 package kr.adapterz.community.domain.member.service;
 
 import kr.adapterz.community.auth.refresh.repository.RefreshRepository;
+import kr.adapterz.community.domain.image.entity.Image;
+import kr.adapterz.community.domain.image.repository.ImageRepository;
 import kr.adapterz.community.domain.member.dto.JoinRequest;
+import kr.adapterz.community.domain.member.dto.MemberJoinResponse;
 import kr.adapterz.community.domain.member.dto.MemberPatchRequest;
 import kr.adapterz.community.domain.member.dto.MemberPatchResponse;
 import kr.adapterz.community.domain.member.entity.Member;
@@ -12,6 +15,7 @@ import kr.adapterz.community.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,33 +25,34 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final ImageRepository imageRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final RefreshRepository refreshRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public void join(JoinRequest joinRequest) {
-        String email = joinRequest.getEmail();
-        String password = joinRequest.getPassword();
-        String nickname = joinRequest.getNickname();
-        String profile_image_url = joinRequest.getProfile_image_url();
-        String role = joinRequest.getRole();
 
-        Boolean isExist = memberRepository.existsByEmail(email);
-
-        if (isExist) {
-            return;
+    public MemberJoinResponse join(JoinRequest request) {
+        // 프로필 이미지 조회 (있는 경우)
+        Image image = null;
+        if (request.getProfileImageId() != null) {
+            image = imageRepository.findById(request.getProfileImageId())
+                    .orElseThrow(() -> new NotFoundException(ErrorCode.IMAGE_NOT_FOUND));
         }
 
+        // 사용자 생성
         Member member = Member.createMember(
-                email,
-                bCryptPasswordEncoder.encode(password),
-                nickname,
-                profile_image_url,
-                role
+                request.getEmail(),
+                passwordEncoder.encode(request.getPassword()),
+                request.getNickname(),
+                image,
+                "ROLE_USER"
         );
 
-        memberRepository.save(member);
+        Member savedMember = memberRepository.save(member);
 
+        return MemberJoinResponse.from(savedMember);
     }
+
 
     public Member findByEmail(String email) {
         return memberRepository.findByEmail(email)
