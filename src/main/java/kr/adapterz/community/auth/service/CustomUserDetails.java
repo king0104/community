@@ -58,4 +58,8 @@ public class CustomUserDetails implements UserDetails {
 
         return true;
     }
+
+    public Integer getMemberId() {
+        return member.getId();
+    }
 }

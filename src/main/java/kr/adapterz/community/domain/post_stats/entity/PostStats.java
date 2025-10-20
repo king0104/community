@@ -3,7 +3,6 @@ package kr.adapterz.community.domain.post_stats.entity;
 
 import jakarta.persistence.*;
 import kr.adapterz.community.common.BaseEntity;
-import kr.adapterz.community.domain.post.entity.Post;
 import lombok.*;
 
 @Entity
@@ -18,10 +17,6 @@ public class PostStats extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false, unique = true)
-    private Post post;
-
     @Column(name = "view_count", nullable = false)
     @Builder.Default
     private Long viewCount = 0L;
@@ -33,5 +28,13 @@ public class PostStats extends BaseEntity {
     @Column(name = "comment_count", nullable = false)
     @Builder.Default
     private Long commentCount = 0L;
+
+    public static PostStats createPostStats() {
+        return PostStats.builder()
+                .viewCount(0L)
+                .likeCount(0L)
+                .commentCount(0L)
+                .build();
+    }
 
 }
