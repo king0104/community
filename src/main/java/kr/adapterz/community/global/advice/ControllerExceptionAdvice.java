@@ -36,7 +36,7 @@ public class ControllerExceptionAdvice {
 
         return ResponseEntity
                 .badRequest()
-                .body(new ErrorResponse("VALIDATION_ERROR", message));
+                .body(ExceptionResponse.fail(e.getStatusCode().value(), e.getMessage()));
     }
 
 }
