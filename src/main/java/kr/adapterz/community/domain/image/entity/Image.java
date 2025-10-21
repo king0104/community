@@ -47,6 +47,17 @@ public class Image extends BaseEntity {
                 .build();
     }
 
+    public static Image createTmpImage() {
+        return Image.builder()
+                .fileName("tmp")
+                .s3Key("tmp")
+                .s3Url("tmp")
+                .fileSize(100L)
+                .mimeType("tmp")
+                .status(ImageStatus.COMPLETED)
+                .build();
+    }
+
 
 
 }

@@ -33,6 +33,7 @@ public enum ErrorCode {
     // 500
     S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S3에 파일 업로드 실패하였습니다"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"예상치 못한 서버 에러가 발생했습니다");
+
     private final HttpStatus status;
     private final String message;
 

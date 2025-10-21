@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import kr.adapterz.community.auth.jwt.JWTUtil;
 import kr.adapterz.community.auth.service.CustomUserDetails;
+import kr.adapterz.community.domain.image.entity.Image;
 import kr.adapterz.community.domain.member.entity.Member;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -68,13 +69,13 @@ public class JWTFilter extends OncePerRequestFilter {
         //토큰에서 username과 role 획득
         String username = jwtUtil.getUsername(accessToken);
         String role = jwtUtil.getRole(accessToken);
-
+        Image tmpImage = Image.createTmpImage();
         //member를 생성하여 값 set
         Member member = Member.createMember(
                 username,
                 "tmpPwd",
                 "tmpNickname",
-                "tmlUrl",
+                tmpImage,
                 role
         );
 
