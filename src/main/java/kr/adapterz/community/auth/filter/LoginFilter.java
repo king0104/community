@@ -13,7 +13,6 @@ import java.util.Map;
 import kr.adapterz.community.auth.jwt.JWTUtil;
 import kr.adapterz.community.auth.refresh.entity.RefreshEntity;
 import kr.adapterz.community.auth.refresh.repository.RefreshRepository;
-import kr.adapterz.community.auth.service.CustomUserDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -73,7 +72,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String access = jwtUtil.createJwt("access", username, role, 600000L);
         String refresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
 
-        addRefreshEntity(username, refresh, 86400000L);
+        addRefreshEntity(username,refresh, 86400000L);
 
         //응답 설정
         response.setHeader("access", access);
