@@ -29,6 +29,8 @@ public enum ErrorCode {
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 멤버를 찾을 수 없습니다"),
     IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 이미지를 찾을 수 없습니다"),
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 게시글을 찾을 수 없습니다"),
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 댓글을 찾을 수 없습니다"),
+    PARENT_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 부모 댓글을 찾을 수 없습니다"),
 
     // 500
     S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S3에 파일 업로드 실패하였습니다"),

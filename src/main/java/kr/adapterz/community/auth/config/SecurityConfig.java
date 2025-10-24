@@ -14,6 +14,8 @@ import kr.adapterz.community.auth.filter.JWTFilter;
 import kr.adapterz.community.auth.filter.LoginFilter;
 import kr.adapterz.community.auth.jwt.JWTUtil;
 import kr.adapterz.community.auth.refresh.repository.RefreshRepository;
+import kr.adapterz.community.domain.member.repository.MemberRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -33,19 +35,14 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final ObjectMapper objectMapper;
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
-
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, ObjectMapper objectMapper, JWTUtil jwtUtil, RefreshRepository refreshRepository) {
-        this.authenticationConfiguration = authenticationConfiguration;
-        this.objectMapper = objectMapper;
-        this.jwtUtil = jwtUtil;
-        this.refreshRepository = refreshRepository;
-    }
+    private final MemberRepository memberRepository;
 
     //AuthenticationManager Bean 등록
     @Bean
@@ -83,7 +80,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated());
         //JWTFilter 등록
         http
-                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
+                .addFilterBefore(new JWTFilter(jwtUtil, memberRepository), LoginFilter.class);
         http
                 .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
 
