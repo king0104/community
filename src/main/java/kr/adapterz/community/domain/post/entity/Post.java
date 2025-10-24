@@ -55,6 +55,16 @@ public class Post extends BaseEntity {
                 .build();
     }
 
+    public static Post createPost(Member member, String title, String content, PostStats postStats, List<Image> images) {
+        return Post.builder()
+                .member(member)
+                .title(title)
+                .content(content)
+                .postStats(postStats)
+                .images(images != null ? images : new ArrayList<>())
+                .build();
+    }
+
     public void updatePost(String title, String content, List<Image> images) {
         if (title != null) {
             this.title = title;

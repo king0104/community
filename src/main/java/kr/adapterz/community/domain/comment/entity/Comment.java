@@ -36,4 +36,21 @@ public class Comment extends BaseEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    public static Comment createComment(Post post, Member member, String content) {
+        return Comment.builder()
+                .post(post)
+                .member(member)
+                .content(content)
+                .build();
+    }
+
+    public static Comment createComment(Post post, Member member, Comment parent, String content) {
+        return Comment.builder()
+                .post(post)
+                .member(member)
+                .parent(parent)
+                .content(content)
+                .build();
+    }
+
 }

@@ -11,19 +11,20 @@ import kr.adapterz.community.auth.jwt.JWTUtil;
 import kr.adapterz.community.auth.service.CustomUserDetails;
 import kr.adapterz.community.domain.image.entity.Image;
 import kr.adapterz.community.domain.member.entity.Member;
+import kr.adapterz.community.domain.member.repository.MemberRepository;
+import kr.adapterz.community.global.exception.ErrorCode;
+import kr.adapterz.community.global.exception.NotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+@RequiredArgsConstructor
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
-
-    public JWTFilter(JWTUtil jwtUtil) {
-        this.jwtUtil = jwtUtil;
-    }
-
+    private final MemberRepository memberRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -68,16 +69,9 @@ public class JWTFilter extends OncePerRequestFilter {
 
         //토큰에서 username과 role 획득
         String username = jwtUtil.getUsername(accessToken);
-        String role = jwtUtil.getRole(accessToken);
-        Image tmpImage = Image.createTmpImage();
-        //member를 생성하여 값 set
-        Member member = Member.createMember(
-                username,
-                "tmpPwd",
-                "tmpNickname",
-                tmpImage,
-                role
-        );
+
+        //username으로 member가져오기
+        Member member = memberRepository.findByEmail(username).orElseThrow(() -> new NotFoundException(ErrorCode.MEMBER_NOT_FOUND));
 
         //UserDetails에 회원 정보 객체 담기
         CustomUserDetails customUserDetails = new CustomUserDetails(member);

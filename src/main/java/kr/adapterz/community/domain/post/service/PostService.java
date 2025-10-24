@@ -37,13 +37,28 @@ public class PostService {
 
     @Transactional
     public PostCreateResponse createPost(Integer memberId, PostCreateRequest request) {
-        Member member = memberRepository.findById(Long.valueOf(memberId))
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.MEMBER_NOT_FOUND));
 
         PostStats postStats = PostStats.createPostStats();
 
-        Post post = Post.createPost(member, request.getTitle(), request.getContent(), postStats);
-
+        // 이미지 찾기
+        List<Image> images = new ArrayList<>();
+        if (request.getImageIds() != null && !request.getImageIds().isEmpty()) {
+            images = imageRepository.findAllById(request.getImageIds());
+            if (images.size() != request.getImageIds().size()) {
+                throw new NotFoundException(ErrorCode.IMAGE_NOT_FOUND);
+            }
+        }
+        // 게시글 생성
+        Post post = Post.createPost(
+                member,
+                request.getTitle(),
+                request.getContent(),
+                postStats,
+                images // images null 가능
+        );
+        // 게시글 저장
         Post savedPost = postRepository.save(post);
 
         return PostCreateResponse.of(savedPost);
