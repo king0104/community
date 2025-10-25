@@ -41,9 +41,9 @@ public class PostController {
             @RequestParam(defaultValue = "20") int size
     ) {
         PostListPageResponse response = postService.getPostList(cursor, size);
-
         return ResponseEntity
                 .status(HttpStatus.OK)
+
                 .body(response);
     }
 
