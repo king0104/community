@@ -23,13 +23,17 @@ public class CommentResponse {
     private LocalDateTime updatedAt;
 
     public static CommentResponse of(Comment comment) {
+        boolean deleted = Boolean.TRUE.equals(comment.getIsDeleted());
+
         return CommentResponse.builder()
                 .id(comment.getId())
-                .content(comment.getContent())
-                .memberId(comment.getMember().getId())
-                .memberNickname(comment.getMember().getNickname())
-                .memberProfileImageUrl(comment.getMember().getImage() != null ?
-                        comment.getMember().getImage().getS3Url() : null)
+                .content(deleted ? "삭제된 댓글입니다" : comment.getContent())
+                .memberId(deleted ? null : comment.getMember().getId())
+                .memberNickname(deleted ? null : comment.getMember().getNickname())
+                .memberProfileImageUrl(
+                        deleted ? null : (comment.getMember().getImage() != null ?
+                                comment.getMember().getImage().getS3Url() : null)
+                )
                 .parentId(comment.getParent() != null ? comment.getParent().getId() : null)
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt())

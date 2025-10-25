@@ -85,4 +85,17 @@ public class CommentService {
         return CommentResponse.of(comment);
     }
 
+    @Transactional
+    public void deleteComment(Integer memberId, Integer commentId) {
+        Comment comment = commentRepository.findByIdWithMember(commentId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.COMMENT_NOT_FOUND));
+
+        // 회원인 경우만 댓글 삭제 가능
+        if (!comment.getMember().getId().equals(memberId)) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN);
+        }
+
+        comment.delete();
+    }
+
 }
