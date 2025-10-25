@@ -3,6 +3,7 @@ package kr.adapterz.community.domain.comment.service;
 import kr.adapterz.community.domain.comment.dto.CommentCreateRequest;
 import kr.adapterz.community.domain.comment.dto.CommentCreateResponse;
 import kr.adapterz.community.domain.comment.dto.CommentResponse;
+import kr.adapterz.community.domain.comment.dto.CommentUpdateRequest;
 import kr.adapterz.community.domain.comment.entity.Comment;
 import kr.adapterz.community.domain.comment.repository.CommentRepository;
 import kr.adapterz.community.domain.member.entity.Member;
@@ -10,6 +11,7 @@ import kr.adapterz.community.domain.member.repository.MemberRepository;
 import kr.adapterz.community.domain.post.entity.Post;
 import kr.adapterz.community.domain.post.repository.PostRepository;
 import kr.adapterz.community.global.exception.ErrorCode;
+import kr.adapterz.community.global.exception.ForbiddenException;
 import kr.adapterz.community.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -67,6 +69,20 @@ public class CommentService {
         return comments.stream()
                 .map(CommentResponse::of)
                 .toList();
+    }
+
+    @Transactional
+    public CommentResponse updateComment(Integer memberId, Integer commentId, CommentUpdateRequest request) {
+        Comment comment = commentRepository.findByIdWithMember(commentId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (!comment.getMember().getId().equals(memberId)) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN);
+        }
+
+        comment.updateContent(request.getContent());
+
+        return CommentResponse.of(comment);
     }
 
 }

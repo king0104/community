@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
 
@@ -15,5 +16,11 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
            "WHERE c.post.id = :postId AND c.isDeleted = false " +
            "ORDER BY c.createdAt ASC")
     List<Comment> findByPostIdWithMember(@Param("postId") Integer postId);
+
+    @Query("SELECT c FROM Comment c " +
+           "JOIN FETCH c.member m " +
+           "JOIN FETCH m.image " +
+           "WHERE c.id = :commentId AND c.isDeleted = false")
+    Optional<Comment> findByIdWithMember(@Param("commentId") Integer commentId);
 
 }

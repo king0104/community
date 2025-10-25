@@ -5,6 +5,7 @@ import kr.adapterz.community.auth.service.CustomUserDetails;
 import kr.adapterz.community.domain.comment.dto.CommentCreateRequest;
 import kr.adapterz.community.domain.comment.dto.CommentCreateResponse;
 import kr.adapterz.community.domain.comment.dto.CommentResponse;
+import kr.adapterz.community.domain.comment.dto.CommentUpdateRequest;
 import kr.adapterz.community.domain.comment.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -41,6 +42,21 @@ public class CommentController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(responses);
+    }
+
+    @PatchMapping("/api/v1/posts/{postId}/comments/{commentId}")
+    public ResponseEntity<CommentResponse> updateComment(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Integer postId,
+            @PathVariable Integer commentId,
+            @Valid @RequestBody CommentUpdateRequest request
+    ) {
+        Integer memberId = userDetails.getMemberId();
+        CommentResponse response = commentService.updateComment(memberId, commentId, request);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
     }
 
 }
