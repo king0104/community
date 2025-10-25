@@ -2,6 +2,7 @@ package kr.adapterz.community.domain.comment.service;
 
 import kr.adapterz.community.domain.comment.dto.CommentCreateRequest;
 import kr.adapterz.community.domain.comment.dto.CommentCreateResponse;
+import kr.adapterz.community.domain.comment.dto.CommentResponse;
 import kr.adapterz.community.domain.comment.entity.Comment;
 import kr.adapterz.community.domain.comment.repository.CommentRepository;
 import kr.adapterz.community.domain.member.entity.Member;
@@ -14,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -24,14 +27,14 @@ public class CommentService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public CommentCreateResponse createComment(Integer memberId, CommentCreateRequest request) {
+    public CommentCreateResponse createComment(Integer postId, Integer memberId, CommentCreateRequest request) {
+        // 게시글 조회
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.POST_NOT_FOUND));
+
         // 회원 조회
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.MEMBER_NOT_FOUND));
-
-        // 게시글 조회
-        Post post = postRepository.findById(request.getPostId())
-                .orElseThrow(() -> new NotFoundException(ErrorCode.POST_NOT_FOUND));
 
         // 부모 댓글 조회 (대댓글인 경우)
         Comment parent = null;
@@ -52,6 +55,18 @@ public class CommentService {
         Comment savedComment = commentRepository.save(comment);
 
         return CommentCreateResponse.of(savedComment);
+    }
+
+    public List<CommentResponse> getCommentsByPostId(Integer postId) {
+        if (!postRepository.existsById(postId)) {
+            throw new NotFoundException(ErrorCode.POST_NOT_FOUND);
+        }
+
+        List<Comment> comments = commentRepository.findByPostIdWithMember(postId);
+
+        return comments.stream()
+                .map(CommentResponse::of)
+                .toList();
     }
 
 }
