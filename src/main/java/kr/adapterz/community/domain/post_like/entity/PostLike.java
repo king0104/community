@@ -11,7 +11,12 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "post_like")
+@Table(
+        name = "post_like",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_post_like_post_member", columnNames = {"post_id", "member_id"})
+        }
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -29,5 +34,12 @@ public class PostLike extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
+
+    public static PostLike createPostLike(Post post, Member member) {
+        return PostLike.builder()
+                .post(post)
+                .member(member)
+                .build();
+    }
 
 }
