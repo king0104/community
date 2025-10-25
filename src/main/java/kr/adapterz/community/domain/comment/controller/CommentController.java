@@ -59,4 +59,18 @@ public class CommentController {
                 .body(response);
     }
 
+    @DeleteMapping("/api/v1/posts/{postId}/comments/{commentId}")
+    public ResponseEntity<Void> deleteComment(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Integer postId,
+            @PathVariable Integer commentId
+    ) {
+        Integer memberId = userDetails.getMemberId();
+        commentService.deleteComment(memberId, commentId);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .build();
+    }
+
 }
