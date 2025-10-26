@@ -48,8 +48,12 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<PostDetailResponse> getPostDetail(@PathVariable Integer postId) {
-        PostDetailResponse response = postService.getPostDetail(postId);
+    public ResponseEntity<PostDetailResponse> getPostDetail(
+            @PathVariable Integer postId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Integer memberId = userDetails.getMemberId();
+        PostDetailResponse response = postService.getPostDetail(postId, memberId);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

@@ -13,6 +13,7 @@ import kr.adapterz.community.domain.post.dto.PostUpdateRequest;
 import kr.adapterz.community.domain.post.dto.PostUpdateResponse;
 import kr.adapterz.community.domain.post.entity.Post;
 import kr.adapterz.community.domain.post.repository.PostRepository;
+import kr.adapterz.community.domain.post_like.repository.PostLikeRepository;
 import kr.adapterz.community.domain.post_stats.entity.PostStats;
 import kr.adapterz.community.global.exception.CustomException;
 import kr.adapterz.community.global.exception.ErrorCode;
@@ -34,6 +35,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final ImageRepository imageRepository;
+    private final PostLikeRepository postLikeRepository;
 
     @Transactional
     public PostCreateResponse createPost(Integer memberId, PostCreateRequest request) {
@@ -83,11 +85,19 @@ public class PostService {
         return PostListPageResponse.of(postResponses, nextCursor, hasNext);
     }
 
-    public PostDetailResponse getPostDetail(Integer postId) {
+    @Transactional
+    public PostDetailResponse getPostDetail(Integer postId, Integer memberId) {
+        // 1. 게시글 조회
         Post post = postRepository.findPostDetailById(postId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.POST_NOT_FOUND));
 
-        return PostDetailResponse.of(post);
+        // 2. 조회수 증가
+        post.getPostStats().increaseViewCount();
+
+        // 3. 좋아요 여부 확인
+        boolean isLikedByMe = postLikeRepository.existsByPostIdAndMemberId(postId, memberId);
+
+        return PostDetailResponse.of(post, isLikedByMe);
     }
 
     @Transactional

@@ -1,6 +1,5 @@
 package kr.adapterz.community.domain.post_stats.entity;
 
-
 import jakarta.persistence.*;
 import kr.adapterz.community.common.BaseEntity;
 import lombok.*;
@@ -35,6 +34,25 @@ public class PostStats extends BaseEntity {
                 .likeCount(0L)
                 .commentCount(0L)
                 .build();
+    }
+
+    public void increaseLikeCount() {
+        this.likeCount = this.likeCount + 1;
+    }
+
+    public void decreaseLikeCount() {
+        if (this.likeCount == 0L) {
+            return;
+        }
+        this.likeCount = this.likeCount - 1;
+    }
+
+    public void synchronizeLikeCount(Long likeCount) {
+        this.likeCount = likeCount;
+    }
+
+    public void increaseViewCount() {
+        this.viewCount = this.viewCount + 1;
     }
 
 }
