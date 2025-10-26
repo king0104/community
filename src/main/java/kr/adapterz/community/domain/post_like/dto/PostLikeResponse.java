@@ -20,4 +20,3 @@ public class PostLikeResponse {
                 .build();
     }
 }
-

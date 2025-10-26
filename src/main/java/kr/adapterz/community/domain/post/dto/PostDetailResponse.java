@@ -21,9 +21,10 @@ public class PostDetailResponse {
     private Long viewCount;
     private Long likeCount;
     private Long commentCount;
+    private Boolean isLikedByMe;
     private LocalDateTime createdAt;
 
-    public static PostDetailResponse of(Post post) {
+    public static PostDetailResponse of(Post post, Boolean isLikedByMe) {
         List<String> imageUrls = post.getImages().stream()
                 .map(image -> image.getS3Url())
                 .toList();
@@ -38,6 +39,7 @@ public class PostDetailResponse {
                 post.getPostStats().getViewCount(),
                 post.getPostStats().getLikeCount(),
                 post.getPostStats().getCommentCount(),
+                isLikedByMe,
                 post.getCreatedAt()
         );
     }

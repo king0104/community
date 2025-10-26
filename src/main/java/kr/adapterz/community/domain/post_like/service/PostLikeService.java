@@ -5,13 +5,13 @@ import kr.adapterz.community.domain.member.entity.Member;
 import kr.adapterz.community.domain.member.repository.MemberRepository;
 import kr.adapterz.community.domain.post.entity.Post;
 import kr.adapterz.community.domain.post.repository.PostRepository;
+import kr.adapterz.community.domain.post_stats.entity.PostStats;
 import kr.adapterz.community.domain.post_like.dto.PostLikeResponse;
 import kr.adapterz.community.domain.post_like.entity.PostLike;
 import kr.adapterz.community.domain.post_like.repository.PostLikeRepository;
 import kr.adapterz.community.global.exception.ErrorCode;
 import kr.adapterz.community.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,24 +26,48 @@ public class PostLikeService {
 
     @Transactional
     public PostLikeResponse like(Integer postId, Integer memberId) {
-        Post post = postRepository.findById(postId)
+        // 1. Post와 PostStats 조회 (Pessimistic Lock)
+        Post post = postRepository.findByIdWithStatsForUpdate(postId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.POST_NOT_FOUND));
 
+        PostStats postStats = post.getPostStats();
+
+        // 2. 좋아요 중복 확인 (조회 쿼리 1회로 최적화)
+        Optional<PostLike> existingLike = postLikeRepository.findByPostIdAndMemberId(postId, memberId);
+        if (existingLike.isPresent()) {
+            // 이미 좋아요를 눌렀다면 현재 상태 반환 (멱등성)
+            return PostLikeResponse.of(true, postStats.getLikeCount());
+        }
+
+        // 3. Member 조회 (좋아요 생성이 필요한 경우에만)
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.MEMBER_NOT_FOUND));
 
-        boolean alreadyLiked = postLikeRepository.existsByPostIdAndMemberId(postId, memberId);
-        if (!alreadyLiked) {
-            try {
-                PostLike newLike = PostLike.createPostLike(post, member);
-                postLikeRepository.save(newLike);
-            } catch (DataIntegrityViolationException e) {
-                // 유니크 제약으로 인한 동시성 충돌 시, 이미 좋아요로 간주
-            }
+        // 4. 좋아요 생성 및 카운트 증가
+        PostLike postLike = PostLike.createPostLike(post, member);
+        postLikeRepository.save(postLike);
+        postStats.increaseLikeCount();
+
+        return PostLikeResponse.of(true, postStats.getLikeCount());
+    }
+
+    @Transactional
+    public PostLikeResponse unlike(Integer postId, Integer memberId) {
+        // 1. Post와 PostStats 조회 (Pessimistic Lock)
+        Post post = postRepository.findByIdWithStatsForUpdate(postId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.POST_NOT_FOUND));
+
+        PostStats postStats = post.getPostStats();
+
+        // 2. 좋아요 조회 및 삭제
+        Optional<PostLike> postLikeOptional = postLikeRepository.findByPostIdAndMemberId(postId, memberId);
+        if (postLikeOptional.isPresent()) {
+            PostLike postLike = postLikeOptional.get();
+            postLikeRepository.delete(postLike);
+            postStats.decreaseLikeCount();
         }
+        // 좋아요가 없어도 예외를 던지지 않음 (멱등성)
 
-        long likeCount = postLikeRepository.countByPostId(postId);
-
-        return PostLikeResponse.of(true, likeCount);
+        return PostLikeResponse.of(false, postStats.getLikeCount());
     }
 }
