@@ -1,7 +1,6 @@
 package kr.adapterz.community.domain.member.controller;
 
 import jakarta.validation.Valid;
-import kr.adapterz.community.auth.service.CustomUserDetails;
 import kr.adapterz.community.domain.member.dto.JoinRequest;
 import kr.adapterz.community.domain.member.dto.MemberGetResponse;
 import kr.adapterz.community.domain.member.dto.MemberPatchRequest;

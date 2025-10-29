@@ -1,6 +1,5 @@
 package kr.adapterz.community.domain.post_like.controller;
 
-import kr.adapterz.community.auth.service.CustomUserDetails;
 import kr.adapterz.community.domain.post_like.dto.PostLikeResponse;
 import kr.adapterz.community.domain.post_like.service.PostLikeService;
 import lombok.RequiredArgsConstructor;
