@@ -1,7 +1,6 @@
 package kr.adapterz.community.domain.post.controller;
 
 import jakarta.validation.Valid;
-import kr.adapterz.community.auth.service.CustomUserDetails;
 import kr.adapterz.community.domain.post.dto.PostCreateRequest;
 import kr.adapterz.community.domain.post.dto.PostCreateResponse;
 import kr.adapterz.community.domain.post.dto.PostDetailResponse;

@@ -1,7 +1,6 @@
 package kr.adapterz.community.domain.comment.controller;
 
 import jakarta.validation.Valid;
-import kr.adapterz.community.auth.service.CustomUserDetails;
 import kr.adapterz.community.domain.comment.dto.CommentCreateRequest;
 import kr.adapterz.community.domain.comment.dto.CommentCreateResponse;
 import kr.adapterz.community.domain.comment.dto.CommentResponse;
