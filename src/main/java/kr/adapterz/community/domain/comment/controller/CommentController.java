@@ -56,7 +56,6 @@ public class CommentController {
 
     @DeleteMapping("/api/v1/posts/{postId}/comments/{commentId}")
     public ResponseEntity<Void> deleteComment(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Integer postId,
             @PathVariable Integer commentId
     ) {

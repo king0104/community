@@ -1,6 +1,7 @@
 package kr.adapterz.community.global.exception;
 
 import lombok.Getter;
+import org.apache.http.protocol.HTTP;
 import org.springframework.boot.autoconfigure.graphql.GraphQlProperties.Http;
 import org.springframework.http.HttpStatus;
 
@@ -18,6 +19,7 @@ public enum ErrorCode {
     UNSUPPORTED_FILE_FORMAT(HttpStatus.BAD_REQUEST, "지원하지 않는 파일 형식입니다"),
     EMAIL_DUPLICATED(HttpStatus.BAD_REQUEST, "중복 이메일입니다"),
     NICKNAME_DUPLICATED(HttpStatus.BAD_REQUEST, "중복 닉네임입니다"),
+    INCORRECT_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호가 맞지 않습니다"),
 
     // 401
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다"),
