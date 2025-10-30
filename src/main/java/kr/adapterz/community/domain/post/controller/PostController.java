@@ -1,6 +1,8 @@
 package kr.adapterz.community.domain.post.controller;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import kr.adapterz.community.auth.resolver.LoginMember;
 import kr.adapterz.community.domain.post.dto.PostCreateRequest;
 import kr.adapterz.community.domain.post.dto.PostCreateResponse;
 import kr.adapterz.community.domain.post.dto.PostDetailResponse;
@@ -11,7 +13,6 @@ import kr.adapterz.community.domain.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,10 +24,9 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<PostCreateResponse> createPost(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @LoginMember Integer memberId,
             @Valid @RequestBody PostCreateRequest request
     ) {
-        Integer memberId = userDetails.getMemberId();
         PostCreateResponse response = postService.createPost(memberId, request);
 
         return ResponseEntity
@@ -48,10 +48,9 @@ public class PostController {
 
     @GetMapping("/{postId}")
     public ResponseEntity<PostDetailResponse> getPostDetail(
-            @PathVariable Integer postId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @LoginMember Integer memberId,
+            @PathVariable Integer postId
     ) {
-        Integer memberId = userDetails.getMemberId();
         PostDetailResponse response = postService.getPostDetail(postId, memberId);
 
         return ResponseEntity
@@ -61,11 +60,10 @@ public class PostController {
 
     @PatchMapping("/{postId}")
     public ResponseEntity<PostUpdateResponse> updatePost(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @LoginMember Integer memberId,
             @PathVariable Integer postId,
             @Valid @RequestBody PostUpdateRequest request
     ) {
-        Integer memberId = userDetails.getMemberId();
         PostUpdateResponse response = postService.updatePost(memberId, postId, request);
 
         return ResponseEntity
@@ -75,10 +73,9 @@ public class PostController {
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @LoginMember Integer memberId,
             @PathVariable Integer postId
     ) {
-        Integer memberId = userDetails.getMemberId();
         postService.deletePost(memberId, postId);
 
         return ResponseEntity

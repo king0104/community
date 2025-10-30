@@ -1,6 +1,7 @@
 package kr.adapterz.community.domain.comment.controller;
 
 import jakarta.validation.Valid;
+import kr.adapterz.community.auth.resolver.LoginMember;
 import kr.adapterz.community.domain.comment.dto.CommentCreateRequest;
 import kr.adapterz.community.domain.comment.dto.CommentCreateResponse;
 import kr.adapterz.community.domain.comment.dto.CommentResponse;
@@ -9,7 +10,6 @@ import kr.adapterz.community.domain.comment.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,11 +22,10 @@ public class CommentController {
 
     @PostMapping("/api/v1/posts/{postId}/comments")
     public ResponseEntity<CommentCreateResponse> createComment(
+            @LoginMember Integer memberId,
             @PathVariable Integer postId,
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CommentCreateRequest request
     ) {
-        Integer memberId = userDetails.getMemberId();
         CommentCreateResponse response = commentService.createComment(postId, memberId, request);
 
         return ResponseEntity
@@ -45,12 +44,11 @@ public class CommentController {
 
     @PatchMapping("/api/v1/posts/{postId}/comments/{commentId}")
     public ResponseEntity<CommentResponse> updateComment(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @LoginMember Integer memberId,
             @PathVariable Integer postId,
             @PathVariable Integer commentId,
             @Valid @RequestBody CommentUpdateRequest request
     ) {
-        Integer memberId = userDetails.getMemberId();
         CommentResponse response = commentService.updateComment(memberId, commentId, request);
 
         return ResponseEntity
@@ -60,12 +58,11 @@ public class CommentController {
 
     @DeleteMapping("/api/v1/posts/{postId}/comments/{commentId}")
     public ResponseEntity<Void> deleteComment(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @LoginMember Long memberId,
             @PathVariable Integer postId,
             @PathVariable Integer commentId
     ) {
-        Integer memberId = userDetails.getMemberId();
-        commentService.deleteComment(memberId, commentId);
+        commentService.deleteComment(memberId.intValue(), commentId);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

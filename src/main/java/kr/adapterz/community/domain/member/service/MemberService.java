@@ -1,6 +1,5 @@
 package kr.adapterz.community.domain.member.service;
 
-import kr.adapterz.community.auth.refresh.repository.RefreshRepository;
 import kr.adapterz.community.domain.image.entity.Image;
 import kr.adapterz.community.domain.image.repository.ImageRepository;
 import kr.adapterz.community.domain.member.dto.JoinRequest;
@@ -15,7 +14,6 @@ import kr.adapterz.community.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,9 +24,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final ImageRepository imageRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final RefreshRepository refreshRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final BCryptPasswordEncoder passwordEncoder;
 
 
     public MemberJoinResponse join(JoinRequest request) {
@@ -67,9 +63,32 @@ public class MemberService {
                 .orElseThrow(() -> new NotFoundException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
+    public Member findById(Integer memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.MEMBER_NOT_FOUND));
+    }
+
     @Transactional
     public MemberPatchResponse patchMember(String email, MemberPatchRequest request) {
         Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 닉네임 변경
+        member.updateNickname(request.getNickname());
+
+        // 이미지 변경
+        if (request.getProfileImageId() != null) {
+            Image newImage = imageRepository.findById(request.getProfileImageId())
+                    .orElseThrow(() -> new NotFoundException(ErrorCode.IMAGE_NOT_FOUND));
+            member.updateImage(newImage);
+        }
+
+        return MemberPatchResponse.from(member);
+    }
+
+    @Transactional
+    public MemberPatchResponse patchMemberById(Integer memberId, MemberPatchRequest request) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.MEMBER_NOT_FOUND));
 
         // 닉네임 변경
@@ -95,7 +114,18 @@ public class MemberService {
         }
 
         member.withdraw();
-        refreshRepository.deleteByUsername(email);
+    }
+
+    @Transactional
+    public void deleteMemberById(Integer memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.MEMBER_NOT_FOUND));
+
+        if (member.isWithdrawn()) {
+            throw new BadRequestException(ErrorCode.MEMBER_ALREADY_WITHDRAWN);
+        }
+
+        member.withdraw();
     }
 
 }

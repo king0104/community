@@ -9,6 +9,7 @@ public enum ErrorCode {
 
     // 400
     MEMBER_ALREADY_WITHDRAWN(HttpStatus.BAD_REQUEST, "이미 탈퇴한 회원입니다"),
+    INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다"),
     REFRESH_TOKEN_MISSED(HttpStatus.BAD_REQUEST, "해당 요청에 refresh token이 없습니다"),
     REFRESH_TOKEN_INVALID(HttpStatus.BAD_REQUEST, "유효하지 않는 refresh token 입니다"),
     REFRESH_TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "만료된 refresh token 입니다"),
@@ -20,10 +21,12 @@ public enum ErrorCode {
     NICKNAME_DUPLICATED(HttpStatus.BAD_REQUEST, "중복 닉네임입니다"),
 
     // 401
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요한 서비스입니다"),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다"),
 
     // 403
     FORBIDDEN(HttpStatus.FORBIDDEN, "접근 권한이 없습니다"),
+    REQUIRE_ADMIN_ROLE(HttpStatus.FORBIDDEN, "관리자 권한이 필요합니다"),
 
     //404
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 멤버를 찾을 수 없습니다"),

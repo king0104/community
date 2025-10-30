@@ -15,13 +15,28 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 
-  jwt:
-    secret: vmfhaltmskdlstkfkdgodyroqkfwkdbalroqkfwkdbalaaaaaaaaaaaaaaaabbbbb
-
   servlet:
     multipart:
       max-file-size: 10MB      # 단일 파일 최대 크기
       max-request-size: 10MB   # 전체 요청 최대 크기
+
+  session:
+    store-type: redis  # 세션을 "어디에" 저장할지
+  redis:
+    host: localhost
+    port: 6379
+
+server:
+  servlet:
+    session:
+      timeout: 30m  # 세션 타임아웃
+      cookie:
+        name: JSESSIONID
+        http-only: true
+        secure: false  # HTTPS 사용 시 true
+        same-site: lax
+        path: /
+
 
 cloud:
   aws:
@@ -34,6 +49,10 @@ cloud:
       static: ${AWS_REGION:ap-northeast-2}  # 기본값: ap-northeast-2 (서울)
     stack:
       auto: false
+
+
+
+
 
 logging:
   level:

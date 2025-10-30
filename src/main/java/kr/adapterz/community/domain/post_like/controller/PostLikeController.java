@@ -1,11 +1,11 @@
 package kr.adapterz.community.domain.post_like.controller;
 
+import kr.adapterz.community.auth.resolver.LoginMember;
 import kr.adapterz.community.domain.post_like.dto.PostLikeResponse;
 import kr.adapterz.community.domain.post_like.service.PostLikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,10 +21,9 @@ public class PostLikeController {
 
     @PostMapping
     public ResponseEntity<PostLikeResponse> like(
-            @PathVariable Integer postId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @LoginMember Integer memberId,
+            @PathVariable Integer postId
     ) {
-        Integer memberId = userDetails.getMemberId();
         PostLikeResponse response = postLikeService.like(postId, memberId);
 
         return ResponseEntity
@@ -34,10 +33,9 @@ public class PostLikeController {
 
     @DeleteMapping
     public ResponseEntity<PostLikeResponse> unlike(
-            @PathVariable Integer postId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @LoginMember Integer memberId,
+            @PathVariable Integer postId
     ) {
-        Integer memberId = userDetails.getMemberId();
         PostLikeResponse response = postLikeService.unlike(postId, memberId);
 
         return ResponseEntity
