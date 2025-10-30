@@ -37,9 +37,7 @@ public class MemberController {
 
     @GetMapping("/me")
     public ResponseEntity<MemberGetResponse> getMember(
-            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        String email = userDetails.getUsername();
         Member member = memberService.findByEmail(email);
 
         return ResponseEntity
@@ -54,10 +52,8 @@ public class MemberController {
 
     @PatchMapping("/me")
     public ResponseEntity<MemberPatchResponse> patchMember(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid MemberPatchRequest request
     ) {
-        String email = userDetails.getUsername();
         MemberPatchResponse response = memberService.patchMember(email, request);
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -66,9 +62,7 @@ public class MemberController {
 
     @DeleteMapping("/me")
     public ResponseEntity<Void> deleteMember(
-            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        String email = userDetails.getUsername();
 
         memberService.deleteMember(email);
 

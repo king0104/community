@@ -23,10 +23,8 @@ public class CommentController {
     @PostMapping("/api/v1/posts/{postId}/comments")
     public ResponseEntity<CommentCreateResponse> createComment(
             @PathVariable Integer postId,
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CommentCreateRequest request
     ) {
-        Integer memberId = userDetails.getMemberId();
         CommentCreateResponse response = commentService.createComment(postId, memberId, request);
 
         return ResponseEntity
@@ -45,12 +43,10 @@ public class CommentController {
 
     @PatchMapping("/api/v1/posts/{postId}/comments/{commentId}")
     public ResponseEntity<CommentResponse> updateComment(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Integer postId,
             @PathVariable Integer commentId,
             @Valid @RequestBody CommentUpdateRequest request
     ) {
-        Integer memberId = userDetails.getMemberId();
         CommentResponse response = commentService.updateComment(memberId, commentId, request);
 
         return ResponseEntity
@@ -64,7 +60,6 @@ public class CommentController {
             @PathVariable Integer postId,
             @PathVariable Integer commentId
     ) {
-        Integer memberId = userDetails.getMemberId();
         commentService.deleteComment(memberId, commentId);
 
         return ResponseEntity

@@ -21,10 +21,8 @@ public class PostLikeController {
 
     @PostMapping
     public ResponseEntity<PostLikeResponse> like(
-            @PathVariable Integer postId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @PathVariable Integer postId
     ) {
-        Integer memberId = userDetails.getMemberId();
         PostLikeResponse response = postLikeService.like(postId, memberId);
 
         return ResponseEntity
@@ -35,9 +33,7 @@ public class PostLikeController {
     @DeleteMapping
     public ResponseEntity<PostLikeResponse> unlike(
             @PathVariable Integer postId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        Integer memberId = userDetails.getMemberId();
         PostLikeResponse response = postLikeService.unlike(postId, memberId);
 
         return ResponseEntity
