@@ -10,7 +10,8 @@ import kr.adapterz.community.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -38,6 +39,7 @@ public class MemberController {
     @GetMapping("/me")
     public ResponseEntity<MemberGetResponse> getMember(
     ) {
+        String email = getEmail();
         Member member = memberService.findByEmail(email);
 
         return ResponseEntity
@@ -54,6 +56,7 @@ public class MemberController {
     public ResponseEntity<MemberPatchResponse> patchMember(
             @RequestBody @Valid MemberPatchRequest request
     ) {
+        String email = getEmail();
         MemberPatchResponse response = memberService.patchMember(email, request);
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -63,11 +66,16 @@ public class MemberController {
     @DeleteMapping("/me")
     public ResponseEntity<Void> deleteMember(
     ) {
-
+        String email = getEmail();
         memberService.deleteMember(email);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .build();
+    }
+
+    private String getEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getName();
     }
 }

@@ -95,7 +95,7 @@ public class MemberService {
         }
 
         member.withdraw();
-        refreshRepository.deleteByUsername(email);
+        refreshRepository.deleteByEmail(email);
     }
 
 }
