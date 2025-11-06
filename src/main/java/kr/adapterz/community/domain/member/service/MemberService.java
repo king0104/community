@@ -4,6 +4,7 @@ import kr.adapterz.community.auth.refresh.repository.RefreshRepository;
 import kr.adapterz.community.domain.image.entity.Image;
 import kr.adapterz.community.domain.image.repository.ImageRepository;
 import kr.adapterz.community.domain.member.dto.JoinRequest;
+import kr.adapterz.community.domain.member.dto.MemberGetResponse;
 import kr.adapterz.community.domain.member.dto.MemberJoinResponse;
 import kr.adapterz.community.domain.member.dto.MemberPatchRequest;
 import kr.adapterz.community.domain.member.dto.MemberPatchResponse;
@@ -14,7 +15,6 @@ import kr.adapterz.community.global.exception.ErrorCode;
 import kr.adapterz.community.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,15 +22,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MemberService {
 
     private final MemberRepository memberRepository;
     private final ImageRepository imageRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final RefreshRepository refreshRepository;
     private final PasswordEncoder passwordEncoder;
 
-
+    /**
+     * 회원가입
+     */
+    @Transactional
     public MemberJoinResponse join(JoinRequest request) {
         // 이메일 중복 체크
         if (memberRepository.existsByEmail(request.getEmail())) {
@@ -46,7 +49,6 @@ public class MemberService {
         Image image = imageRepository.findById(request.getProfileImageId())
                 .orElseThrow(() -> new NotFoundException(ErrorCode.IMAGE_NOT_FOUND));
 
-
         // 사용자 생성
         Member member = Member.createMember(
                 request.getEmail(),
@@ -61,19 +63,41 @@ public class MemberService {
         return MemberJoinResponse.from(savedMember);
     }
 
-
+    /**
+     * 이메일로 회원 조회
+     */
     public Member findByEmail(String email) {
         return memberRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
+    /**
+     * 회원 ID로 회원 정보 조회
+     */
+    public MemberGetResponse getMemberById(Integer memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.MEMBER_NOT_FOUND));
+
+        return MemberGetResponse.of(
+                member.getId(),
+                member.getEmail(),
+                member.getNickname(),
+                member.getImage().getId()
+        );
+    }
+
+    /**
+     * 회원 정보 수정
+     */
     @Transactional
-    public MemberPatchResponse patchMember(String email, MemberPatchRequest request) {
-        Member member = memberRepository.findByEmail(email)
+    public MemberPatchResponse patchMember(Integer memberId, MemberPatchRequest request) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.MEMBER_NOT_FOUND));
 
         // 닉네임 변경
-        member.updateNickname(request.getNickname());
+        if (request.getNickname() != null) {
+            member.updateNickname(request.getNickname());
+        }
 
         // 이미지 변경
         if (request.getProfileImageId() != null) {
@@ -85,9 +109,12 @@ public class MemberService {
         return MemberPatchResponse.from(member);
     }
 
+    /**
+     * 회원 탈퇴
+     */
     @Transactional
-    public void deleteMember(String email) {
-        Member member = memberRepository.findByEmail(email)
+    public void deleteMember(Integer memberId) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.MEMBER_NOT_FOUND));
 
         if (member.isWithdrawn()) {
@@ -95,7 +122,6 @@ public class MemberService {
         }
 
         member.withdraw();
-        refreshRepository.deleteByUsername(email);
+        refreshRepository.deleteByEmail(member.getEmail());
     }
-
 }

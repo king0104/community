@@ -1,91 +1,71 @@
 package kr.adapterz.community.auth.jwt;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import kr.adapterz.community.global.exception.BadRequestException;
-import kr.adapterz.community.global.exception.ErrorCode;
-import kr.adapterz.community.global.exception.UnAuthorizedException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+/**
+ * JWT 토큰 생성 및 검증 유틸리티
+ */
 @Component
 public class JWTUtil {
-    private SecretKey secretKey;
 
-    public JWTUtil(@Value("${spring.jwt.secret}")String secret) {
+    private final SecretKey secretKey;
 
-        secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
+    public JWTUtil(@Value("${spring.jwt.secret}") String secret) {
+        this.secretKey = new SecretKeySpec(
+                secret.getBytes(StandardCharsets.UTF_8),
+                Jwts.SIG.HS256.key().build().getAlgorithm()
+        );
     }
 
-    public String getUsername(String token) {
-        try {
-            return Jwts.parser()
-                    .verifyWith(secretKey)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload()
-                    .get("username", String.class);
-        } catch (JwtException e) {
-            throw new UnAuthorizedException(ErrorCode.INVALID_TOKEN);
-        }
+    /**
+     * 토큰에서 이메일 추출
+     */
+    public String getEmail(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("email", String.class);
     }
 
+    /**
+     * 토큰에서 권한 추출
+     */
     public String getRole(String token) {
-        try {
-            return Jwts.parser()
-                    .verifyWith(secretKey)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload()
-                    .get("role", String.class);
-        } catch (JwtException e) {
-            throw new UnAuthorizedException(ErrorCode.INVALID_TOKEN);
-        }
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("role", String.class);
     }
 
-    public String getCategory(String token) {
-        try {
-            return Jwts.parser()
-                    .verifyWith(secretKey)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload()
-                    .get("category", String.class);
-        } catch (JwtException e) {
-            throw new UnAuthorizedException(ErrorCode.INVALID_TOKEN);
-        }
-    }
-
+    /**
+     * 토큰 만료 확인
+     */
     public Boolean isExpired(String token) {
-
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getExpiration()
+                .before(new Date());
     }
 
-    public void validateTokenExpiration(String token) {
-        try {
-            Jwts.parser()
-                    .verifyWith(secretKey)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload()
-                    .getExpiration();
-        } catch (ExpiredJwtException e) {
-            throw new BadRequestException(ErrorCode.REFRESH_TOKEN_EXPIRED);
-        } catch (JwtException e) {
-            throw new UnAuthorizedException(ErrorCode.INVALID_TOKEN);
-        }
-    }
-
-    public String createJwt(String category, String username, String role, Long expiredMs) {
-
+    /**
+     * Access 토큰 생성
+     */
+    public String createJwt(String email, String role, Long expiredMs) {
         return Jwts.builder()
-                .claim("category", category)
-                .claim("username", username)
+                .claim("email", email)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiredMs))
@@ -93,4 +73,15 @@ public class JWTUtil {
                 .compact();
     }
 
+    /**
+     * Refresh 토큰 생성
+     */
+    public String createRefreshToken(String email, Long expiredMs) {
+        return Jwts.builder()
+                .claim("email", email)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + expiredMs))
+                .signWith(secretKey)
+                .compact();
+    }
 }

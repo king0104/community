@@ -1,16 +1,22 @@
 package kr.adapterz.community.auth.jwt;
 
+/**
+ * JWT 관련 상수
+ */
 public class JwtConstants {
-    // 토큰 유효 시간
-    public static final Long ACCESS_TOKEN_EXPIRATION = 600_000L; // 10분
-    public static final Long REFRESH_TOKEN_EXPIRATION = 86_400_000L; // 24시간
 
-    // 쿠키 설정
-    public static final int COOKIE_MAX_AGE = 24 * 60 * 60; // 24시간 (초 단위)
-    public static final String COOKIE_NAME_REFRESH = "refresh";
+    // 헤더 이름
     public static final String HEADER_NAME_ACCESS = "access";
+    public static final String HEADER_NAME_REFRESH = "refresh";
 
-    // 토큰 카테고리
-    public static final String TOKEN_CATEGORY_ACCESS = "access";
-    public static final String TOKEN_CATEGORY_REFRESH = "refresh";
+    // 쿠키 이름
+    public static final String COOKIE_NAME_REFRESH = "refresh";
+
+    // 토큰 만료 시간
+    public static final long ACCESS_TOKEN_EXPIRE_TIME = 30 * 60 * 1000L;  // 30분
+    public static final long REFRESH_TOKEN_EXPIRE_TIME = 7 * 24 * 60 * 60 * 1000L;  // 7일
+
+    private JwtConstants() {
+        // 상수 클래스이므로 인스턴스 생성 방지
+    }
 }

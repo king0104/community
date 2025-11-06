@@ -1,24 +1,16 @@
 package kr.adapterz.community.domain.member.controller;
 
 import jakarta.validation.Valid;
-import kr.adapterz.community.auth.service.CustomUserDetails;
+import kr.adapterz.community.auth.annotation.LoginMember;
 import kr.adapterz.community.domain.member.dto.JoinRequest;
 import kr.adapterz.community.domain.member.dto.MemberGetResponse;
 import kr.adapterz.community.domain.member.dto.MemberPatchRequest;
 import kr.adapterz.community.domain.member.dto.MemberPatchResponse;
-import kr.adapterz.community.domain.member.entity.Member;
 import kr.adapterz.community.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/members")
@@ -27,54 +19,46 @@ public class MemberController {
 
     private final MemberService memberService;
 
+    /**
+     * 회원가입 (AuthController로 이동 권장)
+     */
     @PostMapping
     public ResponseEntity<Void> join(@Valid @RequestBody JoinRequest joinRequest) {
         memberService.join(joinRequest);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    /**
+     * 내 정보 조회
+     */
     @GetMapping("/me")
     public ResponseEntity<MemberGetResponse> getMember(
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @LoginMember Integer memberId
     ) {
-        String email = userDetails.getUsername();
-        Member member = memberService.findByEmail(email);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(MemberGetResponse.of(
-                        member.getId(),
-                        member.getEmail(),
-                        member.getNickname(),
-                        member.getImage().getId()
-                ));
+        MemberGetResponse response = memberService.getMemberById(memberId);
+        return ResponseEntity.ok(response);
     }
 
+    /**
+     * 내 정보 수정
+     */
     @PatchMapping("/me")
     public ResponseEntity<MemberPatchResponse> patchMember(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody @Valid MemberPatchRequest request
+            @LoginMember Integer memberId,
+            @Valid @RequestBody MemberPatchRequest request
     ) {
-        String email = userDetails.getUsername();
-        MemberPatchResponse response = memberService.patchMember(email, request);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(response);
+        MemberPatchResponse response = memberService.patchMember(memberId, request);
+        return ResponseEntity.ok(response);
     }
 
+    /**
+     * 회원 탈퇴
+     */
     @DeleteMapping("/me")
     public ResponseEntity<Void> deleteMember(
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @LoginMember Integer memberId
     ) {
-        String email = userDetails.getUsername();
-
-        memberService.deleteMember(email);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .build();
+        memberService.deleteMember(memberId);
+        return ResponseEntity.ok().build();
     }
 }

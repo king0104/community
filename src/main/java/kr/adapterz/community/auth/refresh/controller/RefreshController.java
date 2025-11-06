@@ -1,21 +1,14 @@
 package kr.adapterz.community.auth.refresh.controller;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Date;
 import kr.adapterz.community.auth.cookie.CookieUtil;
-import kr.adapterz.community.auth.jwt.JWTUtil;
 import kr.adapterz.community.auth.jwt.JwtConstants;
 import kr.adapterz.community.auth.refresh.dto.ReissueTokenDto;
-import kr.adapterz.community.auth.refresh.entity.RefreshEntity;
-import kr.adapterz.community.auth.refresh.repository.RefreshRepository;
 import kr.adapterz.community.auth.refresh.service.RefreshService;
 import kr.adapterz.community.global.exception.BadRequestException;
 import kr.adapterz.community.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,6 +44,6 @@ public class RefreshController {
                 )
         );
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.ok().build();
     }
 }
