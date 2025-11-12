@@ -1,5 +1,6 @@
 package kr.adapterz.community.domain.image.service;
 
+import kr.adapterz.community.domain.image.dto.ImageMetadataRequest;
 import kr.adapterz.community.domain.image.dto.ImageUploadResponse;
 import kr.adapterz.community.domain.image.entity.Image;
 import kr.adapterz.community.domain.image.entity.ImageStatus;
@@ -19,6 +20,9 @@ public class ImageService {
     private final S3Service s3Service;
 
 
+    /**
+     * 기존 방식: Spring Boot에서 직접 S3 업로드 (Deprecated - Lambda로 이관 예정)
+     */
     @Transactional
     public ImageUploadResponse uploadImage(MultipartFile file) {
         // S3에 업로드
@@ -34,6 +38,24 @@ public class ImageService {
                 s3Url,
                 file.getSize(),
                 file.getContentType()
+        );
+
+        Image savedImage = imageRepository.save(image);
+
+        return ImageUploadResponse.of(savedImage);
+    }
+
+    /**
+     * Lambda에서 S3 업로드 후 메타데이터 저장을 위해 호출하는 메서드
+     */
+    @Transactional
+    public ImageUploadResponse saveImageMetadata(ImageMetadataRequest request) {
+        Image image = Image.createUploadCompletedImage(
+                request.getFileName(),
+                request.getS3Key(),
+                request.getS3Url(),
+                request.getFileSize(),
+                request.getContentType()
         );
 
         Image savedImage = imageRepository.save(image);
