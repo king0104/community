@@ -5,7 +5,7 @@ const axios = require('axios');
 // 환경 변수
 const S3_BUCKET = process.env.S3_BUCKET;
 const AWS_REGION = process.env.AWS_REGION || 'ap-northeast-2';
-const SPRING_BOOT_API_URL = process.env.SPRING_BOOT_API_URL; // e.g., http://your-spring-boot-url/api/v1/images/metadata
+const SPRING_BOOT_API_URL = process.env.SPRING_BOOT_API_URL;
 
 // S3 클라이언트 초기화
 const s3Client = new S3Client({ region: AWS_REGION });
@@ -19,6 +19,11 @@ exports.handler = async (event) => {
     console.log('Event:', JSON.stringify(event, null, 2));
 
     try {
+        // 환경 변수 검증
+        if (!S3_BUCKET) {
+            throw new Error('S3_BUCKET environment variable is not set');
+        }
+
         // API Gateway에서 전달된 데이터 파싱
         const contentType = event.headers['content-type'] || event.headers['Content-Type'];
 
@@ -43,27 +48,43 @@ exports.handler = async (event) => {
 
         console.log('S3 upload successful:', s3Url);
 
-        // Spring Boot API 호출 (메타데이터 저장)
-        const metadata = {
-            fileName: fileName,
-            s3Key: s3Key,
-            s3Url: s3Url,
-            fileSize: fileSize,
-            contentType: mimeType
-        };
+        // Spring Boot API 호출 (메타데이터 저장) - 선택적
+        let springBootResponse = null;
+        if (SPRING_BOOT_API_URL) {
+            try {
+                const metadata = {
+                    fileName: fileName,
+                    s3Key: s3Key,
+                    s3Url: s3Url,
+                    fileSize: fileSize,
+                    contentType: mimeType
+                };
 
-        const springBootResponse = await saveMetadataToSpringBoot(metadata);
-
-        console.log('Metadata saved to Spring Boot:', springBootResponse);
+                springBootResponse = await saveMetadataToSpringBoot(metadata);
+                console.log('Metadata saved to Spring Boot:', springBootResponse);
+            } catch (springBootError) {
+                // Spring Boot 호출 실패해도 S3 업로드는 성공했으므로 경고만 로깅
+                console.warn('Failed to save metadata to Spring Boot:', springBootError.message);
+                // Spring Boot 에러는 무시하고 계속 진행
+            }
+        } else {
+            console.log('SPRING_BOOT_API_URL not set, skipping metadata save');
+        }
 
         // 성공 응답
         return createResponse(201, {
             message: 'Image uploaded successfully',
-            data: springBootResponse
+            s3Url: s3Url,
+            s3Key: s3Key,
+            fileName: fileName,
+            fileSize: fileSize,
+            metadata: springBootResponse
         });
 
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error details:', error);
+        console.error('Error stack:', error.stack);
+
         return createResponse(500, {
             error: 'Internal server error',
             message: error.message
@@ -181,19 +202,24 @@ function generateS3Key(originalFileName) {
  * S3에 파일 업로드
  */
 async function uploadToS3(fileBuffer, s3Key, mimeType) {
-    const command = new PutObjectCommand({
-        Bucket: S3_BUCKET,
-        Key: s3Key,
-        Body: fileBuffer,
-        ContentType: mimeType,
-        CacheControl: 'max-age=31536000', // 1년 캐싱
-        ACL: 'public-read'
-    });
+    try {
+        const command = new PutObjectCommand({
+            Bucket: S3_BUCKET,
+            Key: s3Key,
+            Body: fileBuffer,
+            ContentType: mimeType,
+            CacheControl: 'max-age=31536000' // 1년 캐싱
+            // ACL 제거 - 최신 S3 버킷은 ACL을 비활성화하는 경우가 많음
+        });
 
-    await s3Client.send(command);
+        await s3Client.send(command);
 
-    // S3 URL 생성
-    return `https://${S3_BUCKET}.s3.${AWS_REGION}.amazonaws.com/${s3Key}`;
+        // S3 URL 생성
+        return `https://${S3_BUCKET}.s3.${AWS_REGION}.amazonaws.com/${s3Key}`;
+    } catch (error) {
+        console.error('S3 upload error:', error);
+        throw new Error(`S3 upload failed: ${error.message}`);
+    }
 }
 
 /**
