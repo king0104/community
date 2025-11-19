@@ -24,19 +24,19 @@ public class ImageController {
 
     private final ImageService imageService;
 
-    /**
-     * 기존 업로드 방식 (Deprecated - Lambda로 이관 예정)
-     */
-    @PostMapping
-    public ResponseEntity<ImageUploadResponse> uploadImage(
-            @RequestParam("file") MultipartFile file) {
-
-        ImageUploadResponse response = imageService.uploadImage(file);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
-    }
+//    /**
+//     * 기존 업로드 방식 (Deprecated - Lambda로 이관 예정)
+//     */
+//    @PostMapping
+//    public ResponseEntity<ImageUploadResponse> uploadImage(
+//            @RequestParam("file") MultipartFile file) {
+//
+//        ImageUploadResponse response = imageService.uploadImage(file);
+//
+//        return ResponseEntity
+//                .status(HttpStatus.CREATED)
+//                .body(response);
+//    }
 
     /**
      * Lambda에서 S3 업로드 완료 후 메타데이터 저장을 위해 호출하는 엔드포인트
@@ -53,14 +53,14 @@ public class ImageController {
     }
 
 
-    @DeleteMapping("/{imageId}")
-    public ResponseEntity<Void> deleteImage(
-            @PathVariable Integer imageId) {
-
-        imageService.deleteImage(imageId);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .build();
-    }
+//    @DeleteMapping("/{imageId}")
+//    public ResponseEntity<Void> deleteImage(
+//            @PathVariable Integer imageId) {
+//
+//        imageService.deleteImage(imageId);
+//
+//        return ResponseEntity
+//                .status(HttpStatus.OK)
+//                .build();
+//    }
 }
