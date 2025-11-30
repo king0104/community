@@ -75,6 +75,7 @@ public class SecurityConfig {
         //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
+                        .requestMatchers("/actuator/health").permitAll()  // Health Check 허용
                         .requestMatchers("/login", "/", "/api/v1/members", "/api/v1/auth/**", "/api/v1/images", "/api/v1/images/**").permitAll()
                         .requestMatchers("/api/v1/admin").hasRole("ADMIN")
                         .anyRequest().authenticated());
@@ -100,7 +101,7 @@ public class SecurityConfig {
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 
                         CorsConfiguration configuration = new CorsConfiguration();
-
+\
                         configuration.setAllowedOrigins(Arrays.asList(
                                 "http://localhost:3000",
                                 "http://3.37.111.87:3000"
