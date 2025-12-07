@@ -56,6 +56,9 @@ public class CommentService {
         // 댓글 저장
         Comment savedComment = commentRepository.save(comment);
 
+        // 게시글 통계 업데이트: 댓글 수 증가
+        post.getPostStats().increaseCommentCount();
+
         return CommentCreateResponse.of(savedComment);
     }
 
@@ -94,6 +97,9 @@ public class CommentService {
         if (!comment.getMember().getId().equals(memberId)) {
             throw new ForbiddenException(ErrorCode.FORBIDDEN);
         }
+
+        // 게시글 통계 업데이트: 댓글 수 감소
+        comment.getPost().getPostStats().decreaseCommentCount();
 
         comment.delete();
     }

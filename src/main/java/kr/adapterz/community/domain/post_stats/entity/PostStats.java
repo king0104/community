@@ -55,4 +55,15 @@ public class PostStats extends BaseEntity {
         this.viewCount = this.viewCount + 1;
     }
 
+    public void increaseCommentCount() {
+        this.commentCount = this.commentCount + 1;
+    }
+
+    public void decreaseCommentCount() {
+        if (this.commentCount == 0L) {
+            return;
+        }
+        this.commentCount = this.commentCount - 1;
+    }
+
 }
