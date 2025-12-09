@@ -110,7 +110,7 @@ public class PostService {
         }
 
         List<Image> images = null;
-        if (request.getImageIds() != null) {
+        if (request.getImageIds() != null && !request.getImageIds().isEmpty()) {
             images = new ArrayList<>();
             for (Integer imageId : request.getImageIds()) {
                 Image image = imageRepository.findById(imageId)
