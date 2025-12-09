@@ -17,6 +17,18 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
            "ORDER BY c.createdAt ASC")
     List<Comment> findByPostIdWithMember(@Param("postId") Integer postId);
 
+    @Query(value = "SELECT c.* FROM comment c " +
+                   "JOIN member m ON c.member_id = m.id " +
+                   "WHERE c.post_id = :postId " +
+                   "AND c.is_deleted = false " +
+                   "AND (:cursor IS NULL OR c.id > :cursor) " +
+                   "ORDER BY c.id ASC " +
+                   "LIMIT :limit",
+           nativeQuery = true)
+    List<Comment> findCommentsWithCursor(@Param("postId") Integer postId,
+                                         @Param("cursor") Integer cursor,
+                                         @Param("limit") int limit);
+
     @Query("SELECT c FROM Comment c " +
            "JOIN FETCH c.member m " +
            "JOIN FETCH m.image " +

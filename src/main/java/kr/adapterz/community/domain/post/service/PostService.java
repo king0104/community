@@ -44,7 +44,6 @@ public class PostService {
 
         PostStats postStats = PostStats.createPostStats();
 
-        // 이미지 찾기
         List<Image> images = new ArrayList<>();
         if (request.getImageIds() != null && !request.getImageIds().isEmpty()) {
             images = imageRepository.findAllById(request.getImageIds());
@@ -52,15 +51,15 @@ public class PostService {
                 throw new NotFoundException(ErrorCode.IMAGE_NOT_FOUND);
             }
         }
-        // 게시글 생성
+
         Post post = Post.createPost(
                 member,
                 request.getTitle(),
                 request.getContent(),
                 postStats,
-                images // images null 가능
+                images
         );
-        // 게시글 저장
+
         Post savedPost = postRepository.save(post);
 
         return PostCreateResponse.of(savedPost);
@@ -87,14 +86,11 @@ public class PostService {
 
     @Transactional
     public PostDetailResponse getPostDetail(Integer postId, Integer memberId) {
-        // 1. 게시글 조회
         Post post = postRepository.findPostDetailById(postId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.POST_NOT_FOUND));
 
-        // 2. 조회수 증가
         post.getPostStats().increaseViewCount();
 
-        // 3. 좋아요 여부 확인
         boolean isLikedByMe = postLikeRepository.existsByPostIdAndMemberId(postId, memberId);
 
         return PostDetailResponse.of(post, isLikedByMe);

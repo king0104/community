@@ -2,6 +2,7 @@ package kr.adapterz.community.domain.comment.service;
 
 import kr.adapterz.community.domain.comment.dto.CommentCreateRequest;
 import kr.adapterz.community.domain.comment.dto.CommentCreateResponse;
+import kr.adapterz.community.domain.comment.dto.CommentListPageResponse;
 import kr.adapterz.community.domain.comment.dto.CommentResponse;
 import kr.adapterz.community.domain.comment.dto.CommentUpdateRequest;
 import kr.adapterz.community.domain.comment.entity.Comment;
@@ -72,6 +73,30 @@ public class CommentService {
         return comments.stream()
                 .map(CommentResponse::of)
                 .toList();
+    }
+
+    public CommentListPageResponse getCommentsByPostIdWithPagination(Integer postId, Integer cursor, int size) {
+        if (!postRepository.existsById(postId)) {
+            throw new NotFoundException(ErrorCode.POST_NOT_FOUND);
+        }
+
+        List<Comment> comments = commentRepository.findCommentsWithCursor(postId, cursor, size + 1);
+
+        boolean hasNext = comments.size() > size;
+
+        if (hasNext) {
+            comments = comments.subList(0, size);
+        }
+
+        List<CommentResponse> commentResponses = comments.stream()
+                .map(CommentResponse::of)
+                .toList();
+
+        Integer nextCursor = hasNext && !comments.isEmpty()
+                ? comments.get(comments.size() - 1).getId()
+                : null;
+
+        return CommentListPageResponse.of(commentResponses, nextCursor, hasNext);
     }
 
     @Transactional

@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import kr.adapterz.community.auth.service.CustomUserDetails;
 import kr.adapterz.community.domain.comment.dto.CommentCreateRequest;
 import kr.adapterz.community.domain.comment.dto.CommentCreateResponse;
+import kr.adapterz.community.domain.comment.dto.CommentListPageResponse;
 import kr.adapterz.community.domain.comment.dto.CommentResponse;
 import kr.adapterz.community.domain.comment.dto.CommentUpdateRequest;
 import kr.adapterz.community.domain.comment.service.CommentService;
@@ -36,12 +37,16 @@ public class CommentController {
     }
 
     @GetMapping("/api/v1/posts/{postId}/comments")
-    public ResponseEntity<List<CommentResponse>> getComments(@PathVariable Integer postId) {
-        List<CommentResponse> responses = commentService.getCommentsByPostId(postId);
+    public ResponseEntity<CommentListPageResponse> getComments(
+            @PathVariable Integer postId,
+            @RequestParam(required = false) Integer cursor,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        CommentListPageResponse response = commentService.getCommentsByPostIdWithPagination(postId, cursor, size);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(responses);
+                .body(response);
     }
 
     @PatchMapping("/api/v1/posts/{postId}/comments/{commentId}")
