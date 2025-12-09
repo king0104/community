@@ -15,6 +15,7 @@ public class PostDetailResponse {
     private Integer id;
     private String title;
     private String content;
+    private List<Integer> imageIds;
     private List<String> imageUrls;
     private Integer memberId;
     private String memberNickname;
@@ -30,6 +31,7 @@ public class PostDetailResponse {
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
+                .imageIds(extractImageIds(post))
                 .imageUrls(extractImageUrls(post))
                 .memberId(post.getMember().getId())
                 .memberNickname(post.getMember().getNickname())
@@ -40,6 +42,12 @@ public class PostDetailResponse {
                 .isLikedByMe(isLikedByMe)
                 .createdAt(post.getCreatedAt())
                 .build();
+    }
+
+    private static List<Integer> extractImageIds(Post post) {
+        return post.getImages().stream()
+                .map(image -> image.getId())
+                .toList();
     }
 
     private static List<String> extractImageUrls(Post post) {
